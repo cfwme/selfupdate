@@ -1,5 +1,5 @@
 {
-    "name": "yii2tech/selfupdate",
+    "name": "cfwme/selfupdate",
     "description": "Basic extension for the Yii2 project self-update from VCS",
     "keywords": ["yii2", "selfupdate", "update", "deployment", "continuous", "integration", "GIT", "Mercurial"],
     "type": "yii2-extension",
