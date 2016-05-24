@@ -165,6 +165,12 @@ class SelfUpdateController extends Controller
      * If not set or sending email via this component fails, the fallback to the plain PHP `mail()` function will be used instead.
      */
     public $mailer;
+
+    /**
+     * @var \yii2tech\selfupdate\NotifierInterface the notifier object or the application component ID of the notifier.
+     */
+    public $notifier;
+
     /**
      * @var string configuration file name. Settings from this file will be merged with the default ones.
      * Such configuration file can be created, using action 'config'.
@@ -204,6 +210,7 @@ class SelfUpdateController extends Controller
             $this->log("Reading configuration from: $configFile");
             Yii::configure($this, require $configFile);
         }
+        $this->notifier = Instance::ensure($this->notifier, 'yii2tech\selfupdate\NotifierInterface');
 
         if (!$this->acquireMutex()) {
             $this->stderr("Execution terminated: command is already running.\n", Console::FG_RED);
@@ -243,7 +250,7 @@ class SelfUpdateController extends Controller
 
         } catch (\Exception $exception) {
             $this->log($exception->getMessage());
-            $this->reportFail();
+            $this->reportFail($exception);
 
             $this->releaseMutex();
             return self::EXIT_CODE_ERROR;
@@ -557,14 +564,22 @@ class SelfUpdateController extends Controller
      */
     protected function reportSuccess()
     {
+        if ($this->notifier) {
+            $this->notifier->notifySuccess();
+        }
+
         $this->reportResult('Update success');
     }
 
     /**
      * Sends report about failure.
      */
-    protected function reportFail()
+    protected function reportFail($exception)
     {
+        if ($this->notifier) {
+            $this->notifier->notifyFail($exception);
+        }
+
         $this->reportResult('UPDATE FAILED');
     }
 
