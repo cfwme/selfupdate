@@ -210,7 +210,11 @@ class SelfUpdateController extends Controller
             $this->log("Reading configuration from: $configFile");
             Yii::configure($this, require $configFile);
         }
-        $this->notifier = Instance::ensure($this->notifier, 'yii2tech\selfupdate\NotifierInterface');
+
+        if ($this->notifier) {
+            $this->notifier = Instance::ensure($this->notifier, 'yii2tech\selfupdate\NotifierInterface');
+            $this->notifier->projectName = $this->notifier->projectName ?: $this->getBaseName();
+        }
 
         if (!$this->acquireMutex()) {
             $this->stderr("Execution terminated: command is already running.\n", Console::FG_RED);
@@ -581,6 +585,11 @@ class SelfUpdateController extends Controller
         }
 
         $this->reportResult('UPDATE FAILED');
+    }
+
+    protected function getBaseName()
+    {
+        return basename(Yii::getAlias($this->projectRootPath));
     }
 
     /**

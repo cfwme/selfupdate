@@ -19,18 +19,23 @@ class SlackNotifier extends Object implements NotifierInterface
     /**
      * @var string
      */
+    public $projectName;
+
+    /**
+     * @var string
+     */
     public $username = 'Deploy Bot';
 
 
     public function notifySuccess($message = null)
     {
-        $this->postMessage($message ?: '*Successfully updated*');
+        $this->postMessage($message ?: "*{$this->projectName}* successfully updated");
     }
 
     public function notifyFail($message = null)
     {
         $message = StringHelper::truncate($message, 300);
-        $this->postMessage("*Update is failed* \n ```$message```");
+        $this->postMessage("*{$this->projectName}* update failed \n ```$message```");
     }
 
     /**
